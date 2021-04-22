@@ -22,21 +22,12 @@ public class PlayerController : MonoBehaviour
     public float jumpStrength = 5f;
     public float fallMultiplier = 2.5f;
     public float lowJumpMultiplier = 2f;
-    private bool tryToGround = true;
     private bool isGrounded = false;
     private bool jumpPressed = false;
+    private bool movePressed = false;
 
     float inputAmount;
-    Vector3 raycastFloorPos;
-    Vector3 floorMovement;
     Vector3 gravity;
-    Vector3 jump;
-    Vector3 CombinedRaycast;
-
-    public Transform groundChecker;
-    public Transform collisionChecker;
-
-    private int playerLayerMask;
 
 
     private void Awake()
@@ -67,41 +58,54 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        IsGrounded();
+        if (playerInput != Vector2.zero) // Do we have an input?
+        {
+            Move(playerInput);
+        }
+        else
+        {
+            Move(Vector2.zero);
+        }
 
-        // actual movement of the rigidbody + extra down force
-        rb.velocity = (playerInput * currentSetSpeed * inputAmount) + (gravity.y * Vector2.up);
+        // Are we close enough to the ground to be considered grounded?
+        if (!isGrounded)
+            isGrounded = IsGrounded();
 
-        // make sure the input doesnt go negative or above 1;
-        float inputMagnitude = Mathf.Abs(playerInput.x) + Mathf.Abs(playerInput.y);
-        inputAmount = Mathf.Clamp01(inputMagnitude);
-
-        if (rb.velocity.y < 0)
+        if (rb.velocity.y < 0) // Are we falling?
         {
             gravity += Physics.gravity * (fallMultiplier - 1) * Time.deltaTime;
         }
-        else if (rb.velocity.y > 0 && !jumpPressed)
+        else if (rb.velocity.y > 0 && !jumpPressed) // Are we jumping, but the player is no longer trying to jump?
         {
             gravity += Physics.gravity * (lowJumpMultiplier - 1) * Time.deltaTime;
         }
+
+        // Reset the player input after using it
+        // ?playerInput = Vector2.zero;
     }
 
     private bool IsGrounded()
     {
         Collider2D colliderHit = Physics2D.OverlapBox(tempCollider.bounds.center - Vector3.up, tempCollider.bounds.size, 0f, groundMask);
+        Debug.Log("Collider Hit: " + colliderHit.name);
         return colliderHit != null;
+    }
+
+    private void Move(Vector2 playerInput)
+    {
+        transform.Translate(playerInput * Vector2.right * currentSetSpeed * Time.deltaTime);
     }
 
     private void Jump()
     {
         jumpPressed = !jumpPressed;
 
-        if (isGrounded && jumpPressed)
+        if (IsGrounded() && jumpPressed)
         {
-            tryToGround = false;
             isGrounded = false;
-            rb.AddForce(Vector3.up * jumpStrength, ForceMode2D.Impulse);
+            rb.AddForce(Vector2.up * jumpStrength, ForceMode2D.Impulse);
+            Debug.Log("Jumping");
         }
-        Debug.Log("Jump called");
+
     }
 }

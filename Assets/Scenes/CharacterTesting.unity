@@ -381,8 +381,6 @@ MonoBehaviour:
   jumpStrength: 5
   fallMultiplier: 2.5
   lowJumpMultiplier: 2
-  groundChecker: {fileID: 0}
-  collisionChecker: {fileID: 0}
 --- !u!114 &591000507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -481,7 +479,7 @@ GameObject:
   - component: {fileID: 1199044322}
   - component: {fileID: 1199044324}
   m_Layer: 6
-  m_Name: Ground
+  m_Name: GrassyPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
